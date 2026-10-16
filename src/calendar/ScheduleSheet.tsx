@@ -21,6 +21,7 @@ const FOLDER = "providerFolder";
 interface Props {
   open: boolean;
   entry: ScheduleEntry | null;
+  initial?: { day: Date; minutes: number };
   screenGroupId: string;
   today: Date;
   playlists: Playlist[];
@@ -54,10 +55,17 @@ const option = (title: string, detail?: string) => (
   </Box>
 );
 
-const initialState = (entry: ScheduleEntry | null, today: Date, playlists: Playlist[]): FormState => {
-  const todayKey = wallDateKey(today);
+const timeKey = (minutes: number) => {
+  const m = ((minutes % 1440) + 1440) % 1440;
+  return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
+};
+
+const initialState = (entry: ScheduleEntry | null, today: Date, playlists: Playlist[], initial?: { day: Date; minutes: number }): FormState => {
   if (!entry?.id) {
-    return { target: playlists[0]?.id ? "playlist:" + playlists[0].id : "", providerId: "", providerPath: "", days: [today.getUTCDay()], oneTime: false, date: todayKey, startTime: "09:00", endTime: "10:00", endBehavior: "loop", starts: todayKey, endsOn: false, until: "" };
+    const day = initial?.day || today;
+    const dayKey = wallDateKey(day);
+    const startMinutes = initial ? initial.minutes : 9 * 60;
+    return { target: playlists[0]?.id ? "playlist:" + playlists[0].id : "", providerId: "", providerPath: "", days: [day.getUTCDay()], oneTime: false, date: dayKey, startTime: timeKey(startMinutes), endTime: timeKey(startMinutes + 60), endBehavior: "loop", starts: dayKey, endsOn: false, until: "" };
   }
   const start = parseWall(entry.start) || today;
   const end = parseWall(entry.end) || start;
@@ -79,17 +87,17 @@ const initialState = (entry: ScheduleEntry | null, today: Date, playlists: Playl
   };
 };
 
-export const ScheduleSheet: React.FC<Props> = ({ open, entry, screenGroupId, today, playlists, planTypes, ministries, providers, browsable, overlaps, onClose }) => {
-  const [form, setForm] = React.useState<FormState>(() => initialState(entry, today, playlists));
+export const ScheduleSheet: React.FC<Props> = ({ open, entry, initial, screenGroupId, today, playlists, planTypes, ministries, providers, browsable, overlaps, onClose }) => {
+  const [form, setForm] = React.useState<FormState>(() => initialState(entry, today, playlists, initial));
   const [browsing, setBrowsing] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState("");
 
   React.useEffect(() => {
     if (!open) return;
-    setForm(initialState(entry, today, playlists));
+    setForm(initialState(entry, today, playlists, initial));
     setError("");
-  }, [open, entry]);
+  }, [open, entry, initial]);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) => setForm((f) => ({ ...f, [key]: value }));
 

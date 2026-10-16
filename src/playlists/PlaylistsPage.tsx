@@ -89,8 +89,8 @@ export const PlaylistsPage: React.FC = () => {
                 </TableBody>
               </Table>
             </Box>
-            <AddBar title={adding ? "Add playlist" : undefined} sx={{ mt: 0 }}>
-              {adding ? (
+            {adding && (
+              <AddBar title="Add playlist" sx={{ mt: 0 }}>
                 <Box component="form" id="addPlaylistForm" onSubmit={handleCreate} noValidate sx={formWidthSx}>
                   <TextField fullWidth autoFocus margin="none" label="Name" placeholder="Welcome loop" value={name} onChange={(e) => setName(e.target.value)} slotProps={{ htmlInput: { "data-testid": "new-playlist-name" } }} />
                   <Stack direction="row" spacing={1.5} sx={{ mt: 2 }}>
@@ -98,10 +98,8 @@ export const PlaylistsPage: React.FC = () => {
                     <Button variant="outlined" onClick={() => { setAdding(false); setName(""); }}>Cancel</Button>
                   </Stack>
                 </Box>
-              ) : (
-                <Button variant="outlined" startIcon={<AddIcon />} onClick={openAdd}>Add playlist</Button>
-              )}
-            </AddBar>
+              </AddBar>
+            )}
           </Stack>
         </Surface>
       </PageContainer>

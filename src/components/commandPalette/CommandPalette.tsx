@@ -32,8 +32,19 @@ export const CommandPalette: React.FC<Props> = ({ menu, actions, also, label, pa
   const resultsRef = React.useRef<HTMLDivElement>(null);
   const fromKeyboard = React.useRef(false);
 
-  // SiteHeader has no slot yet, so portal into its toolbar and hide its primary dropdown in CSS.
-  React.useEffect(() => { setSlot(document.getElementById("site-toolbar")); }, [location.pathname]);
+  // SiteHeader has no slot and rebuilds its toolbar on re-render, so keep re-finding it.
+  const resolveSlot = React.useCallback(() => {
+    const next = document.getElementById("site-toolbar");
+    setSlot((prev) => (prev === next ? prev : next));
+  }, []);
+  React.useEffect(() => { resolveSlot(); });
+  React.useEffect(() => {
+    const header = document.getElementById("site-header");
+    if (!header) return;
+    const observer = new MutationObserver(resolveSlot);
+    observer.observe(header, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [resolveSlot, slot]);
 
   const items = React.useMemo(() => {
     const nav = menu.map((m): PaletteItem => {

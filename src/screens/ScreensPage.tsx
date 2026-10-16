@@ -1,11 +1,11 @@
 import React from "react";
 import { useSearchParams } from "react-router-dom";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { Add as AddIcon, GridView as GridIcon, TableRowsOutlined as TableIcon } from "@mui/icons-material";
 import { UserHelper } from "@churchapps/apphelper";
-import { AddBar, CountChip, EmptyState, FilterChip, HeaderPrimaryButton, HeaderTextButton, PageContainer, PageHeader, ResultsBar, SearchField, Surface, ViewToggle } from "../components/ui";
+import { CountChip, EmptyState, FilterChip, HeaderPrimaryButton, HeaderTextButton, PageContainer, PageHeader, ResultsBar, SearchField, Surface, ViewToggle } from "../components/ui";
 import { usePageTitle } from "../components/PageTitle";
-import { isOnline, isReadyForSunday, isScheduled, needsAttention, nowPlayingTitle, usePlaylists, useScheduleEntries, useScreenGroups, useScreens, type Screen } from "../helpers";
+import { isOnline, isReadyForSunday, isScheduled, needsAttention, nowPlayingTitle, usePlaylists, useScheduleEntries, useScreenGroups, useScreens, type Screen, type ScreenGroup } from "../helpers";
 import { useProviders } from "../providers/useProviders";
 import { GetStarted, type GetStartedStep } from "./components/GetStarted";
 import { GroupsView } from "./components/GroupsView";
@@ -26,13 +26,14 @@ export const ScreensPage: React.FC = () => {
   const groups = useScreenGroups().data || [];
   const playlists = usePlaylists().data || [];
   const entries = useScheduleEntries().data || [];
-  const { linked, all: allProviders } = useProviders();
+  const { browsable } = useProviders();
 
   const [search, setSearch] = React.useState("");
   const [filter, setFilter] = React.useState<Filter>("all");
   const [pairing, setPairing] = React.useState(searchParams.get("pair") === "1");
   const [pairCode, setPairCode] = React.useState(searchParams.get("code") || "");
   const [editing, setEditing] = React.useState<Screen | null>(null);
+  const [editingGroup, setEditingGroup] = React.useState<ScreenGroup | null>(null);
   const [view, setView] = React.useState<"table" | "grid">(() => {
     try { return localStorage.getItem(VIEW_KEY) === "grid" ? "grid" : "table"; } catch { return "table"; }
   });
@@ -52,6 +53,11 @@ export const ScreensPage: React.FC = () => {
       setSearchParams(next, { replace: true });
     }
   }, [searchParams]);
+
+  const editGroup = React.useCallback((group: ScreenGroup) => {
+    setEditingGroup(group);
+    setTimeout(() => document.getElementById("groupForm")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+  }, []);
 
   const changeView = (next: "table" | "grid") => {
     setView(next);
@@ -77,16 +83,18 @@ export const ScreensPage: React.FC = () => {
   const groupCount = groups.length;
   const subtitle = [`${screens.length} screen${screens.length === 1 ? "" : "s"} in ${groupCount} group${groupCount === 1 ? "" : "s"}`, churchName].filter(Boolean).join(" · ");
 
-  const linkedNames = linked.map((l) => allProviders.find((p) => p.id === l.providerId)?.name || l.providerId).filter(Boolean);
   const groupWithoutLoop = groups.find((g) => !g.defaultPlaylistId);
   const steps: GetStartedStep[] = [
-    { title: "Connect a provider", done: linked.length > 0, detail: linked.length ? `${linkedNames.join(" and ")} ${linkedNames.length === 1 ? "is" : "are"} connected` : "Dropbox, Google Drive, Lessons.church and more", verb: { label: "Open providers", to: "/providers" } },
+    { title: "Connect a provider", done: browsable.length > 0, detail: browsable.length ? `${browsable.length} provider${browsable.length === 1 ? "" : "s"} ready` : "Dropbox, Google Drive, Lessons.church and more", verb: { label: "Open providers", to: "/providers" } },
     { title: "Build a playlist", done: playlists.length > 0, detail: playlists.length ? `${playlists.length} playlist${playlists.length === 1 ? "" : "s"}` : "Pick images and videos from a provider", verb: { label: "Add playlist", to: "/playlists?add=1" } },
     { title: "Put it on the calendar", done: entries.length > 0 || (groups.length > 0 && !groupWithoutLoop), detail: groupWithoutLoop ? `${groupWithoutLoop.name} has no default loop yet` : "Choose what plays when", verb: { label: "Open calendar", to: "/calendar" } },
     { title: "Pair a screen", done: screens.length > 0, detail: "Enter the code shown on the TV", verb: { label: "Pair screen", onClick: openPair } }
   ];
 
-  const setGroupsView = (on: boolean) => setSearchParams(on ? { view: "groups" } : {}, { replace: false });
+  const setGroupsView = (on: boolean) => {
+    setEditingGroup(null);
+    setSearchParams(on ? { view: "groups" } : {}, { replace: false });
+  };
 
   const filterOptions: { value: Filter; label: string }[] = [
     { value: "all", label: "All" },
@@ -107,12 +115,14 @@ export const ScreensPage: React.FC = () => {
           { value: screens.filter(needsAttention).length, label: "Needs attention" }
         ]}>
         <HeaderTextButton onClick={() => setGroupsView(!groupsView)} data-testid="groups-toggle">{groupsView ? "Screens" : "Groups"}</HeaderTextButton>
-        <HeaderPrimaryButton startIcon={<AddIcon />} onClick={() => { if (groupsView) setGroupsView(false); openPair(); }} data-testid="pair-screen-button">Pair screen</HeaderPrimaryButton>
+        {groupsView
+          ? <HeaderPrimaryButton startIcon={<AddIcon />} onClick={() => editGroup({})} data-testid="add-group-button">Add group</HeaderPrimaryButton>
+          : <HeaderPrimaryButton startIcon={<AddIcon />} onClick={openPair} data-testid="pair-screen-button">Pair screen</HeaderPrimaryButton>}
       </PageHeader>
       <PageContainer>
         <Surface>
           {groupsView ? (
-            <GroupsView groups={groups} screens={screens} playlists={playlists} />
+            <GroupsView groups={groups} screens={screens} playlists={playlists} editing={editingGroup} onEdit={editGroup} onDone={() => setEditingGroup(null)} />
           ) : (
             <Stack spacing={3}>
               <GetStarted steps={steps} />
@@ -129,14 +139,10 @@ export const ScreensPage: React.FC = () => {
                   ? <Box sx={{ pt: 2 }}><EmptyState variant="plain" title={screens.length ? "No screens match." : "No screens yet."} description={screens.length ? undefined : "Open FreePlay on a TV, choose Settings → Pair to a calendar, then pair it here."} /></Box>
                   : <ScreenTable screens={filtered} groupName={groupName} onEdit={setEditing} view={view} />}
               </Box>
-              {pairing ? (
+              {pairing && (
                 <Box sx={{ borderTop: 1, borderColor: "divider", pt: 3 }}>
                   <PairScreenForm groups={groups} initialCode={pairCode} onDone={() => setPairing(false)} />
                 </Box>
-              ) : (
-                <AddBar sx={{ mt: 0 }}>
-                  <Button variant="outlined" startIcon={<AddIcon />} onClick={openPair}>Pair screen</Button>
-                </AddBar>
               )}
             </Stack>
           )}

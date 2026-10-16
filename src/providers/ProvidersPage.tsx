@@ -23,8 +23,9 @@ export const ProvidersPage: React.FC = () => {
   const auth = useProviderConnect(all, () => { refetch(); });
 
   const linkFor = (id: string) => linked.find((l) => l.providerId === id);
-  const connected = all.filter((p) => linkFor(p.id));
-  const available = all.filter((p) => !linkFor(p.id));
+  const isPublic = (p: ProviderInfo) => !p.requiresAuth && !isLanProvider(p);
+  const connected = all.filter((p) => isPublic(p) || linkFor(p.id));
+  const available = all.filter((p) => p.requiresAuth && !linkFor(p.id));
 
   const handleUnlink = async (link: ContentProviderAuthInterface) => {
     if (!link.id) return;
@@ -48,7 +49,7 @@ export const ProvidersPage: React.FC = () => {
         </Stack>
       );
     }
-    if (!p.requiresAuth) return link ? <StatusBadge tone="success" variant="dot">Public · no sign-in needed</StatusBadge> : "Public · no sign-in needed";
+    if (!p.requiresAuth) return <StatusBadge tone="success" variant="dot">Public · no sign-in needed</StatusBadge>;
     if (link) {
       const expires = link.expiresAt ? " · expires " + formatLongDate(link.expiresAt) : "";
       return <StatusBadge tone="success" variant="dot">{"Account linked" + expires}</StatusBadge>;
@@ -61,8 +62,8 @@ export const ProvidersPage: React.FC = () => {
     const lan = isLanProvider(p);
     return (
       <Stack key={p.id} direction="row" spacing={2} alignItems="center" sx={{ py: 1.5, "& + &": { borderTop: 1, borderColor: "divider" } }} data-testid={"provider-row-" + p.id}>
-        <Box sx={{ width: 48, height: 32, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          {p.logos?.light && <Box component="img" src={p.logos.light} alt="" sx={{ maxHeight: 32, maxWidth: 48, objectFit: "contain" }} />}
+        <Box sx={{ width: 48, height: 36, p: "4px", boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, bgcolor: "var(--b1-neutral-bg)", borderRadius: "var(--b1-radius-control)" }}>
+          {p.logos?.light && <Box component="img" src={p.logos.light} alt="" sx={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }} />}
         </Box>
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography sx={{ fontWeight: 600 }}>{p.name}</Typography>
@@ -70,10 +71,10 @@ export const ProvidersPage: React.FC = () => {
         </Box>
         {!lan && (
           <VerbRow plain sx={{ flexShrink: 0, alignItems: "center" }}>
-            {(link || !p.requiresAuth) && <TextAction small onClick={() => setBrowseId(p.id)}>Browse</TextAction>}
+            {(link || !p.requiresAuth) && <TextAction small onClick={() => setBrowseId(p.id)} data-testid={"browse-" + p.id}>Browse</TextAction>}
             {link && p.requiresAuth && <TextAction small disabled={busyId === p.id} onClick={() => handleRefresh(p.id)}>Refresh</TextAction>}
-            {link && <TextAction small onClick={() => handleUnlink(link)}>Unlink</TextAction>}
-            {!link && <Button variant="outlined" size="small" onClick={() => auth.connect(p.id)} data-testid={"connect-" + p.id}>Connect</Button>}
+            {link && p.requiresAuth && <TextAction small onClick={() => handleUnlink(link)}>Unlink</TextAction>}
+            {!link && p.requiresAuth && <Button variant="outlined" size="small" onClick={() => auth.connect(p.id)} data-testid={"connect-" + p.id}>Connect</Button>}
           </VerbRow>
         )}
       </Stack>
@@ -93,7 +94,7 @@ export const ProvidersPage: React.FC = () => {
           </Surface>
           <Surface>
             <Typography variant="h2" sx={{ mb: 1 }}>Available</Typography>
-            {available.map(row)}
+            {available.length === 0 ? <Typography color="text.secondary" sx={{ py: 1.5 }}>Every provider is connected.</Typography> : available.map(row)}
           </Surface>
         </Stack>
       </PageContainer>

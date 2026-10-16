@@ -12,5 +12,10 @@ test.describe("Providers", () => {
 
     await expect(page.getByTestId("provider-row-dropbox")).toBeVisible();
     await expect(page.getByTestId("provider-row-freeshow")).toContainText("On your church network");
+
+    const lessons = page.getByTestId("provider-row-lessonschurch");
+    await expect(lessons).toContainText("Public · no sign-in needed");
+    await expect(lessons.getByTestId("connect-lessonschurch")).toHaveCount(0);
+    await expect(lessons.getByTestId("browse-lessonschurch")).toBeVisible();
   });
 });

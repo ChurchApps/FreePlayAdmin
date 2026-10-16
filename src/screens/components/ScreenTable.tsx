@@ -12,6 +12,8 @@ interface Props {
   view: "table" | "grid";
 }
 
+const ScreenLabel: React.FC<{ screen: Screen }> = ({ screen }) => (screen.label ? <>{screen.label}</> : <Box component="span" sx={{ fontStyle: "italic", color: "text.secondary" }}>Unnamed screen</Box>);
+
 export const ModeBadge: React.FC<{ screen: Screen }> = ({ screen }) => (isScheduled(screen) ? <StatusBadge tone="info">Scheduled</StatusBadge> : <StatusBadge>Manual</StatusBadge>);
 
 export const ReadyBadge: React.FC<{ screen: Screen }> = ({ screen }) => {
@@ -49,7 +51,7 @@ export const ScreenTable: React.FC<Props> = ({ screens, groupName, onEdit, view 
             <Stack direction="row" spacing={1.5} alignItems="center">
               <Box sx={{ width: 40, height: 40, borderRadius: "var(--b1-radius-avatar)", bgcolor: "var(--b1-chip)", color: "var(--b1-on-chip)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><TvIcon /></Box>
               <Box sx={{ minWidth: 0 }}>
-                <TextAction component={RouterLink} to={"/screens/" + s.id}>{s.label || "Unnamed screen"}</TextAction>
+                <TextAction component={RouterLink} to={"/screens/" + s.id}><ScreenLabel screen={s} /></TextAction>
                 <Typography variant="body2" color="text.secondary" noWrap>{groupName(s)}</Typography>
               </Box>
             </Stack>
@@ -73,7 +75,7 @@ export const ScreenTable: React.FC<Props> = ({ screens, groupName, onEdit, view 
           {screens.map((s) => (
             <TableRow key={s.id} data-testid="screen-row">
               <TableCell>
-                <TextAction small component={RouterLink} to={"/screens/" + s.id}>{s.label || "Unnamed screen"}</TextAction>
+                <TextAction small component={RouterLink} to={"/screens/" + s.id}><ScreenLabel screen={s} /></TextAction>
                 {deviceCaption(s) && <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>{deviceCaption(s)}</Typography>}
               </TableCell>
               <TableCell>{groupName(s)}</TableCell>

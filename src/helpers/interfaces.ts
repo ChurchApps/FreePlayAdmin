@@ -50,6 +50,7 @@ export interface NowPlaying {
   occurrenceId?: string;
   cacheKey?: string;
   title?: string;
+  thumbnail?: string;
 }
 
 export interface ScreenStatus {

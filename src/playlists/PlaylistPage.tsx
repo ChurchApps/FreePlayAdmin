@@ -1,8 +1,8 @@
 import React from "react";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, Box, Button, CircularProgress, Stack, TextField, Typography } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, PlayArrow as PlayIcon } from "@mui/icons-material";
+import { Alert, Box, Button, CircularProgress, Grid, Stack, TextField, Typography } from "@mui/material";
+import { Add as AddIcon, Edit as EditIcon, PlayArrow as PlayIcon, PlaylistAdd as PlaylistAddIcon } from "@mui/icons-material";
 import { ApiHelper } from "@churchapps/apphelper";
 import { type ContentFile } from "@churchapps/content-providers";
 import { ConfirmDialog, PageContainer, Pill, PillTabs, RecordHeading, RecordLayout, Sheet, TextAction, VerbRow } from "../components/ui";
@@ -16,6 +16,9 @@ import { PlaylistItemRow } from "./PlaylistItemRow";
 import { duplicatePlaylist, playlistUsage } from "./playlistUsage";
 
 const CONNECT = "__connect";
+
+const panelSx = { display: "flex", flexDirection: "column", maxHeight: { md: "calc(100vh - 260px)" }, minHeight: { md: 360 } } as const;
+const scrollSx = { flex: 1, minHeight: 0, overflowY: "auto" } as const;
 
 const toItem = (file: ContentFile, providerId: string, providerPath: string): PlaylistItem => ({
   id: file.id,
@@ -125,6 +128,8 @@ export const PlaylistPage: React.FC = () => {
   const isAdded = (file: ContentFile) => items.some((i) => i.id === file.id && i.providerId === browser.providerId);
   const thumbs = items.filter((i) => i.thumbnail).slice(0, 3);
   const activeProvider = providers.find((p) => p.id === browser.providerId);
+  const notAdded = browser.files.filter((f, i) => !isAdded(f) && browser.files.findIndex((x) => x.id === f.id) === i);
+  const addAll = () => update([...items, ...notAdded.map((f) => toItem(f, browser.providerId, browser.currentPath))]);
 
   const identity = (
     <Stack spacing={1.5}>
@@ -169,56 +174,75 @@ export const PlaylistPage: React.FC = () => {
         <TextAction small component={RouterLink} to="/playlists">Playlists</TextAction> › {name || "Untitled"}
       </Box>
       <RecordLayout identity={identity}>
-        <Box component="section">
-          <RecordHeading label="Items">
-            <CountChip count={items.length} />
-            <Typography variant="body2" color="text.secondary" sx={{ ml: "auto !important" }}>{formatDuration(total)} total</Typography>
-          </RecordHeading>
-          {items.length === 0
-            ? <Typography color="text.secondary">No items yet. Pick files from a provider below.</Typography>
-            : (
-              <Box data-testid="playlist-items">
-                {items.map((item, i) => (
-                  <PlaylistItemRow
-                    key={(item.providerId || "") + (item.id || "") + i}
-                    item={item}
-                    index={i}
-                    provider={providers.find((p) => p.id === item.providerId)}
-                    onMove={move}
-                    onChange={(changed) => update(items.map((x, j) => (j === i ? changed : x)))}
-                    onRemove={() => update(items.filter((_, j) => j !== i))}
-                  />
-                ))}
-              </Box>
-            )}
-        </Box>
-        <Box component="section">
-          <RecordHeading label="Add from provider" />
-          <Stack spacing={2}>
-            <PillTabs value={browser.providerId} onChange={(v) => (v === CONNECT ? navigate("/providers") : selectProvider(v))} options={providerOptions} data-testid="provider-tabs" />
-            {activeProvider && <BrowseCrumbs providerName={activeProvider.name} crumbs={browser.crumbs} onGo={browser.goTo} />}
-            {browser.loading
-              ? <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}><CircularProgress /></Box>
-              : activeProvider && (browser.folders.length + browser.files.length === 0
-                ? <Typography color="text.secondary">Nothing in this folder.</Typography>
-                : (
-                  <BrowseGrid
-                    folders={browser.folders}
-                    files={browser.files}
-                    selectedProviderId={browser.providerId}
-                    isLeafFolder={(f) => !!f.isLeaf}
-                    onFolderClick={browser.openFolder}
-                    onFileClick={(file) => update([...items, toItem(file, browser.providerId, browser.currentPath)])}
-                    isFileSelected={isAdded}
-                  />
-                ))}
-            <Typography variant="body2" color="text.secondary">Click a file to add it. Images default to {DEFAULT_IMAGE_SECONDS} seconds; videos play to the end.</Typography>
-            {error && <Alert severity="error">{error}</Alert>}
-            <Stack direction="row" spacing={1.5} sx={{ pt: 1 }}>
-              <Button variant="contained" disabled={saving || !dirty} onClick={() => save().catch(() => {})} data-testid="save-playlist">{saving ? "Saving…" : "Save"}</Button>
+        <Box component="section" data-testid="playlist-editor">
+          <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ position: "sticky", top: 0, zIndex: 2, bgcolor: "background.paper", pb: 2, mb: 3, borderBottom: 1, borderColor: "divider" }}>
+            <Typography sx={{ fontWeight: 600, fontVariantNumeric: "tabular-nums" }} data-testid="playlist-summary">{`Items · ${items.length} · ${formatDuration(total)}`}</Typography>
+            <Stack direction="row" spacing={1.5}>
               <Button variant="outlined" disabled={saving} onClick={() => navigate("/playlists")}>Cancel</Button>
+              <Button variant="contained" disabled={saving || !dirty} onClick={() => save().catch(() => {})} data-testid="save-playlist">{saving ? "Saving…" : "Save"}</Button>
             </Stack>
           </Stack>
+          {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+          <Grid container spacing={4}>
+            <Grid size={{ xs: 12, md: 6, lg: 5 }} sx={panelSx}>
+              <RecordHeading label="Items">
+                <CountChip count={items.length} />
+                <Typography variant="body2" color="text.secondary" sx={{ ml: "auto !important" }}>{formatDuration(total)} total</Typography>
+              </RecordHeading>
+              <Box sx={scrollSx}>
+                {items.length === 0
+                  ? <Typography color="text.secondary">No items yet. Pick files from a provider.</Typography>
+                  : (
+                    <Box data-testid="playlist-items">
+                      {items.map((item, i) => (
+                        <PlaylistItemRow
+                          key={(item.providerId || "") + (item.id || "") + i}
+                          item={item}
+                          index={i}
+                          provider={providers.find((p) => p.id === item.providerId)}
+                          onMove={move}
+                          onChange={(changed) => update(items.map((x, j) => (j === i ? changed : x)))}
+                          onRemove={() => update(items.filter((_, j) => j !== i))}
+                        />
+                      ))}
+                    </Box>
+                  )}
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6, lg: 7 }} sx={panelSx}>
+              <RecordHeading label="Add from provider" />
+              <Stack spacing={1.5} sx={{ mb: 2 }}>
+                <PillTabs value={browser.providerId} onChange={(v) => (v === CONNECT ? navigate("/providers") : selectProvider(v))} options={providerOptions} data-testid="provider-tabs" />
+                {activeProvider && (
+                  <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
+                    <Box sx={{ minWidth: 0 }}><BrowseCrumbs providerName={activeProvider.name} crumbs={browser.crumbs} onGo={browser.goTo} /></Box>
+                    {!browser.loading && browser.files.length > 0 && (
+                      <Button variant="outlined" size="small" startIcon={<PlaylistAddIcon />} disabled={notAdded.length === 0} onClick={addAll} sx={{ flexShrink: 0 }} data-testid="add-all">{`Add all (${notAdded.length})`}</Button>
+                    )}
+                  </Stack>
+                )}
+                <Typography variant="caption" color="text.secondary">Click a file to add it. Images default to {DEFAULT_IMAGE_SECONDS} seconds; videos play to the end.</Typography>
+              </Stack>
+              <Box sx={scrollSx}>
+                {browser.loading
+                  ? <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}><CircularProgress /></Box>
+                  : activeProvider && (browser.folders.length + browser.files.length === 0
+                    ? <Typography color="text.secondary">Nothing in this folder.</Typography>
+                    : (
+                      <BrowseGrid
+                        folders={browser.folders}
+                        files={browser.files}
+                        selectedProviderId={browser.providerId}
+                        isLeafFolder={(f) => !!f.isLeaf}
+                        onFolderClick={browser.openFolder}
+                        onFileClick={(file) => update([...items, toItem(file, browser.providerId, browser.currentPath)])}
+                        isFileSelected={isAdded}
+                        maxHeight="none"
+                      />
+                    ))}
+              </Box>
+            </Grid>
+          </Grid>
         </Box>
       </RecordLayout>
       <Sheet open={renaming} title="Rename playlist" onClose={() => setRenaming(false)} onSubmit={handleRename} saveTestId="rename-save">

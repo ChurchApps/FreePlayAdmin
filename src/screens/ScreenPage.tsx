@@ -71,6 +71,9 @@ export const ScreenPage: React.FC = () => {
   const defaultLoop = playlists.find((p) => p.id === group?.defaultPlaylistId);
   const missingList = Array.isArray(screen.status?.missing) ? screen.status.missing : [];
   const recent = screen.status?.recent || [];
+  const nowPlaying = screen.status?.nowPlaying;
+  const nowThumb = typeof nowPlaying === "object" ? nowPlaying?.thumbnail : undefined;
+  const status = screen.status;
 
   const handleUnpair = async () => {
     setConfirmUnpair(false);
@@ -124,7 +127,9 @@ export const ScreenPage: React.FC = () => {
           <Box component="section">
             <RecordHeading label="Now and next"><TextAction small component={RouterLink} to={"/calendar?group=" + groupId}>Open calendar</TextAction></RecordHeading>
             <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
-              <Box sx={{ width: 120, height: 68, borderRadius: "var(--b1-radius-control)", bgcolor: "var(--b1-wash)", flexShrink: 0 }} />
+              <Box sx={{ width: 160, height: 90, borderRadius: "var(--b1-radius-control)", bgcolor: "var(--b1-wash)", flexShrink: 0, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }} data-testid="now-playing-thumb">
+                {nowThumb ? <Box component="img" src={nowThumb} alt="" sx={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <TvIcon sx={{ fontSize: 40, color: "text.secondary" }} />}
+              </Box>
               <Box>
                 <Typography sx={{ fontWeight: 600 }}>{nowPlayingTitle(screen) || nowLabel}</Typography>
                 <Typography variant="body2" color="text.secondary">{nowDetail}</Typography>
@@ -187,9 +192,7 @@ export const ScreenPage: React.FC = () => {
             <KeyValue k="App version">{screen.status?.appVersion || "—"}</KeyValue>
             <KeyValue k="IP address">{screen.ipAddress || "—"}</KeyValue>
             <KeyValue k="Polls">{isScheduled(screen) ? "Every 5 min" + (screen.status?.manifestRev ? ` · manifest #${screen.status.manifestRev}` : "") : "Pairing check only"}</KeyValue>
-            {(screen.status?.freeBytes !== undefined || screen.status?.usedBytes !== undefined) && (
-              <KeyValue k="Storage">{[screen.status?.usedBytes !== undefined && formatBytes(screen.status.usedBytes) + " used", screen.status?.freeBytes !== undefined && formatBytes(screen.status.freeBytes) + " free"].filter(Boolean).join(" · ")}</KeyValue>
-            )}
+            <KeyValue k="Storage">{status?.freeBytes === undefined ? "—" : [status.usedBytes !== undefined && formatBytes(status.usedBytes) + " used", formatBytes(status.freeBytes) + " free"].filter(Boolean).join(" · ")}</KeyValue>
             <KeyValue k="Last seen">{relativeAgo(screen.lastActiveDate)}</KeyValue>
             <KeyValue k="Mode"><ModeBadge screen={screen} /></KeyValue>
           </Box>

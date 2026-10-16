@@ -9,6 +9,9 @@ interface Props {
   groups: ScreenGroup[];
   screens: Screen[];
   playlists: Playlist[];
+  editing: ScreenGroup | null;
+  onEdit: (group: ScreenGroup) => void;
+  onDone: () => void;
 }
 
 const GroupForm: React.FC<{ group: ScreenGroup; playlists: Playlist[]; onDone: () => void }> = ({ group, playlists, onDone }) => {
@@ -60,39 +63,30 @@ const GroupForm: React.FC<{ group: ScreenGroup; playlists: Playlist[]; onDone: (
   );
 };
 
-export const GroupsView: React.FC<Props> = ({ groups, screens, playlists }) => {
-  const [editing, setEditing] = React.useState<ScreenGroup | null>(null);
-  const formRef = React.useRef<HTMLDivElement>(null);
-
-  const edit = (group: ScreenGroup) => {
-    setEditing(group);
-    setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
-  };
-
-  return (
-    <>
-      <Box role="region" aria-label="Screen groups" tabIndex={0} sx={tableScrollSx}>
-        <Table>
-          <SortableTableHead columns={[{ key: "name", label: "Name" }, { key: "screens", label: "Screens" }, { key: "loop", label: "Default loop" }]} />
-          <TableBody>
-            {groups.length === 0 && <TableRow><EmptyState variant="table" colSpan={3} title="No groups yet." description="Groups share one calendar. Add one below or while pairing a screen." /></TableRow>}
-            {groups.map((g) => (
-              <TableRow key={g.id}>
-                <TableCell><TextAction small onClick={() => edit(g)}>{g.name}</TextAction></TableCell>
-                <TableCell>{screens.filter((s) => screenGroupId(s) === g.id).length}</TableCell>
-                <TableCell>{playlists.find((p) => p.id === g.defaultPlaylistId)?.name || <Typography component="span" variant="body2" color="text.secondary">None — screen goes dark</Typography>}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Box>
-      <Box ref={formRef}>
-        <AddBar title={editing?.id ? "Edit group" : "Add group"} sx={{ mt: 0 }}>
-          {editing
-            ? <GroupForm key={editing.id || "new"} group={editing} playlists={playlists} onDone={() => setEditing(null)} />
-            : <Button variant="outlined" onClick={() => edit({})} data-testid="add-group">Add group</Button>}
+export const GroupsView: React.FC<Props> = ({ groups, screens, playlists, editing, onEdit, onDone }) => (
+  <>
+    <Box role="region" aria-label="Screen groups" tabIndex={0} sx={tableScrollSx}>
+      <Table>
+        <SortableTableHead columns={[{ key: "name", label: "Name" }, { key: "screens", label: "Screens" }, { key: "loop", label: "Default loop" }, { key: "verbs", label: "" }]} />
+        <TableBody>
+          {groups.length === 0 && <TableRow><EmptyState variant="table" colSpan={4} title="No groups yet." description="Groups share one calendar. Add one here or while pairing a screen." /></TableRow>}
+          {groups.map((g) => (
+            <TableRow key={g.id} data-testid="group-row">
+              <TableCell sx={{ fontWeight: 600 }}>{g.name}</TableCell>
+              <TableCell>{screens.filter((s) => screenGroupId(s) === g.id).length}</TableCell>
+              <TableCell>{playlists.find((p) => p.id === g.defaultPlaylistId)?.name || <Typography component="span" variant="body2" color="text.secondary">None — screen goes dark</Typography>}</TableCell>
+              <TableCell align="right"><TextAction small onClick={() => onEdit(g)} data-testid={"edit-group-" + g.id}>Edit</TextAction></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Box>
+    {editing && (
+      <Box id="groupForm">
+        <AddBar title={editing.id ? "Edit group" : "Add group"}>
+          <GroupForm key={editing.id || "new"} group={editing} playlists={playlists} onDone={onDone} />
         </AddBar>
       </Box>
-    </>
-  );
-};
+    )}
+  </>
+);

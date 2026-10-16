@@ -43,6 +43,7 @@ export const CalendarPage: React.FC = () => {
   const [weekStart, setWeekStart] = React.useState(() => mondayOf(nowWall(tz)));
   const [sheetEntry, setSheetEntry] = React.useState<ScheduleEntry | null>(null);
   const [sheetOpen, setSheetOpen] = React.useState(false);
+  const [sheetInitial, setSheetInitial] = React.useState<{ day: Date; minutes: number } | undefined>();
   const [loopOpen, setLoopOpen] = React.useState(false);
   const [loopValue, setLoopValue] = React.useState("");
 
@@ -59,7 +60,8 @@ export const CalendarPage: React.FC = () => {
 
   const occurrences = React.useMemo(() => expandEntries(entries, weekStart, new Date(weekStart.getTime() + 7 * DAY_MS)), [entries, weekStart]);
 
-  const openAdd = React.useCallback(() => {
+  const openAdd = React.useCallback((initial?: { day: Date; minutes: number }) => {
+    setSheetInitial(initial);
     setSheetEntry(null);
     setSheetOpen(true);
   }, []);
@@ -97,7 +99,7 @@ export const CalendarPage: React.FC = () => {
             {defaultLoop ? "Default loop: " + defaultLoop.name : "Default loop…"}
           </HeaderTextButton>
         )}
-        <HeaderPrimaryButton startIcon={<AddIcon />} onClick={openAdd} disabled={!group} data-testid="add-schedule-button">Add schedule</HeaderPrimaryButton>
+        <HeaderPrimaryButton startIcon={<AddIcon />} onClick={() => openAdd()} disabled={!group} data-testid="add-schedule-button">Add schedule</HeaderPrimaryButton>
       </PageHeader>
       <PageContainer>
         {groups.length === 0 ? (
@@ -135,7 +137,7 @@ export const CalendarPage: React.FC = () => {
                   hasDefaultLoop={!!defaultLoop}
                   describe={(e) => describeTarget(e, ctx)}
                   onSelect={(e) => { setSheetEntry(e); setSheetOpen(true); }}
-                  onEmptyClick={() => openAdd()}
+                  onEmptyClick={(day, minutes) => openAdd({ day, minutes })}
                 />
               </Box>
             </Surface>
@@ -146,6 +148,7 @@ export const CalendarPage: React.FC = () => {
         <ScheduleSheet
           open={sheetOpen}
           entry={sheetEntry}
+          initial={sheetInitial}
           screenGroupId={group.id || ""}
           today={today}
           playlists={playlists}

@@ -19,15 +19,16 @@ interface BrowseGridProps {
   onFileClick?: (file: ContentFile, provId: string, pathIndices?: number[]) => void;
   /** When set, file cards toggle in and out of a selection (onFileClick) and show their selected state. */
   isFileSelected?: (file: ContentFile) => boolean;
+  maxHeight?: string;
 }
 
-export const BrowseGrid: React.FC<BrowseGridProps> = ({ folders, files = [], selectedProviderId, selectedFolderId, isLeafFolder, onFolderClick, onFileClick, isFileSelected }) => (
+export const BrowseGrid: React.FC<BrowseGridProps> = ({ folders, files = [], selectedProviderId, selectedFolderId, isLeafFolder, onFolderClick, onFileClick, isFileSelected, maxHeight = "400px" }) => (
   <Box
     sx={{
       display: "grid",
       gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
       gap: 2,
-      maxHeight: "400px",
+      maxHeight,
       overflowY: "auto",
       p: 1
     }}

@@ -8,6 +8,7 @@ test.describe("Playlists", () => {
     await page.getByTestId("new-playlist-name").fill(name);
     await page.getByTestId("create-playlist").click();
     await expect(page).toHaveURL(/\/playlists\/[^/]+$/);
+    await expect(page.getByTestId("command-palette-open")).toBeVisible();
     await expect(page.getByTestId("playlist-name")).toHaveText(name);
 
     await page.getByTestId("provider-tab-lessonschurch").click();
@@ -20,14 +21,20 @@ test.describe("Playlists", () => {
       await folderCards.first().click();
     }
     await fileCards.first().click();
-    await expect(page.getByTestId("playlist-item")).toHaveCount(1);
+    const items = page.getByTestId("playlist-item");
+    await expect(items).toHaveCount(1);
+
+    await page.getByTestId("add-all").click();
+    await expect.poll(() => items.count()).toBeGreaterThan(1);
+    await expect(page.getByTestId("add-all")).toBeDisabled();
+    const added = await items.count();
 
     await page.getByTestId("save-playlist").click();
     await expect(page.getByTestId("save-playlist")).toBeDisabled();
 
     await page.reload();
     await expect(page.getByTestId("playlist-name")).toHaveText(name, { timeout: 20000 });
-    await expect(page.getByTestId("playlist-item")).toHaveCount(1);
+    await expect(items).toHaveCount(added);
 
     await page.goto("/playlists");
     await expect(page.getByTestId("playlist-row").filter({ hasText: name })).toBeVisible();

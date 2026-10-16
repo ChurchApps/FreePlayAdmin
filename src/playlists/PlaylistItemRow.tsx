@@ -17,7 +17,10 @@ interface Props {
   onRemove: () => void;
 }
 
-const pathCaption = (item: PlaylistItem) => [...(item.providerPath || "").split("/").filter(Boolean).map((s) => decodeURIComponent(s)), item.title].filter(Boolean).join(" / ");
+const pathCaption = (item: PlaylistItem) => {
+  const segments = (item.providerPath || "").split("/").filter(Boolean).map((s) => decodeURIComponent(s)).filter((s) => s.length > 2 && s !== item.id);
+  return [...segments, item.title].filter(Boolean).join(" / ");
+};
 
 export const PlaylistItemRow: React.FC<Props> = ({ item, index, provider, onMove, onChange, onRemove }) => {
   const ref = React.useRef<HTMLDivElement>(null);

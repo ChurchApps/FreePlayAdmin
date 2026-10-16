@@ -28,6 +28,12 @@ test.describe("Screens", () => {
     await page.getByTestId("groups-toggle").click();
     await expect(page).toHaveURL(/view=groups/);
     await expect(page.locator("#page-header-title")).toHaveText("Screen groups");
+    await expect(page.getByTestId("command-palette-open")).toBeVisible();
+    await expect(page.getByTestId("pair-screen-button")).toHaveCount(0);
+    await page.getByTestId("add-group-button").click();
+    await expect(page.getByTestId("group-form")).toBeVisible();
+    await page.getByTestId("group-form").getByRole("button", { name: "Cancel" }).click();
+    await expect(page.getByTestId("group-form")).toHaveCount(0);
     await page.getByTestId("groups-toggle").click();
     await expect(page.locator("#page-header-title")).toHaveText("Screens");
   });
