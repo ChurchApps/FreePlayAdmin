@@ -1,0 +1,81 @@
+{
+  "name": "freeplayweb",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "yarn@4.15.0",
+  "dependencies": {
+    "@churchapps/apphelper": "^1.8.6",
+    "@churchapps/content-providers": "^0.13.0",
+    "@churchapps/helpers": "^2.7.0",
+    "@mui/icons-material": "^7.3.11",
+    "@mui/material": "^7.3.11",
+    "@tanstack/react-query": "^5.100.9",
+    "react": "^19.2.6",
+    "react-cookie": "^8.1.2",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-dom": "^19.2.6",
+    "react-hook-form": "^7.75.0",
+    "react-router-dom": "^7.15.0",
+    "rrule": "^2.8.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^22.14.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.59.2",
+    "@typescript-eslint/parser": "^8.59.2",
+    "@vitejs/plugin-react": "^6.0.1",
+    "copyfiles": "^2.4.1",
+    "esbuild": "^0.28.0",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "globals": "^17.6.0",
+    "playwright": "^1.59.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^8.0.11"
+  },
+  "scripts": {
+    "preinstall": "node -e \"if(!(process.env.npm_config_user_agent||'').startsWith('yarn')){console.error('\\n[FreePlayWeb] This project uses Yarn (Berry). Run \\'yarn install\\' instead of npm/pnpm.\\n');process.exit(1)}\"",
+    "start": "vite",
+    "build": "tsc -p tsconfig.app.json && vite build",
+    "typecheck": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json",
+    "preview": "vite preview",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "lint": "eslint --fix src/",
+    "lint:check": "eslint src/",
+    "postinstall": "copyfiles -a -f \"node_modules/@churchapps/apphelper/dist/public/locales/**\" public/apphelper/locales && copyfiles -a -f \"node_modules/@churchapps/apphelper/dist/public/css/**\" public/apphelper/css",
+    "predeploy-prod": "REACT_APP_STAGE=prod yarn postinstall && REACT_APP_STAGE=prod yarn build",
+    "exec-deploy-prod": "aws s3 sync dist/ s3://freeplay-admin-web --delete",
+    "postdeploy-prod": "aws cloudfront create-invalidation --distribution-id E1PBQFTMM0CWS --paths \"/*\"",
+    "deploy-prod": "yarn predeploy-prod && yarn exec-deploy-prod && yarn postdeploy-prod"
+  },
+  "dependenciesMeta": {
+    "esbuild": {
+      "built": true
+    }
+  },
+  "browserslist": [
+    ">0.3%",
+    "not ie 11",
+    "not dead",
+    "not op_mini all"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx,js}": [
+      "yarn lint"
+    ]
+  }
+}

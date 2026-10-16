@@ -1,0 +1,67 @@
+{
+  "common": {
+    "add": "Add",
+    "all": "All",
+    "back": "Back",
+    "backTo": "Back to {name}",
+    "cancel": "Cancel",
+    "change": "Change",
+    "clear": "Clear",
+    "close": "Close",
+    "copy": "Copy",
+    "delete": "Delete",
+    "done": "Done",
+    "duplicate": "Duplicate",
+    "edit": "Edit",
+    "error": "Error",
+    "loading": "Loading",
+    "more": "More",
+    "name": "Name",
+    "remove": "Remove",
+    "save": "Save",
+    "saveError": "Unable to save. Please try again.",
+    "saving": "Saving...",
+    "search": "Search",
+    "select": "Select",
+    "tryAgain": "Try Again"
+  },
+  "plans": {
+    "contentProviderAuth": {
+      "authExpired": "Authentication expired or failed",
+      "authFailed": "Authentication failed",
+      "deviceFlowFailed": "Failed to start device flow",
+      "deviceFlowInstructions": "Visit the URL below and enter the code to authorize:",
+      "deviceFlowUnsupported": "Provider does not support device flow",
+      "errorGeneric": "Failed to link provider. Please try again.",
+      "expiresPrefix": "Expires:",
+      "link": "Link",
+      "linkAccount": "Link Account",
+      "linkNew": "Link New Provider",
+      "linked": "Linked",
+      "noLinkedDescription": "Link a content provider to access their content in your service plans.",
+      "noProvidersAvailable": "No content providers available",
+      "pkceInstructions": "Click the button below to authorize in a popup window:",
+      "pkceUnsupported": "Provider does not support PKCE authentication",
+      "pkceWaiting": "Waiting for authorization in popup...",
+      "popupBlocked": "Failed to open popup. Please allow popups for this site.",
+      "refresh": "Refresh",
+      "selectProvider": "Link Content Provider",
+      "sessionExpired": "Authorization session expired. Please try again.",
+      "sessionFailed": "Failed to create authorization session. Please try again.",
+      "startAuthFailed": "Failed to start authentication",
+      "success": "Successfully linked!",
+      "title": "Content Providers",
+      "tokenExchangeFailed": "Failed to exchange code for tokens",
+      "tokenExpired": "Token expired - please re-link",
+      "unlink": "Unlink",
+      "waitingForAuth": "Waiting for authorization..."
+    }
+  },
+  "profile": {
+    "profilePage": {
+      "themePreferences": "Theme",
+      "lightMode": "Light",
+      "darkMode": "Dark"
+    }
+  }
+}
