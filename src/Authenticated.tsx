@@ -32,6 +32,11 @@ const Layout: React.FC = () => {
   );
 };
 
+const PairRedirect: React.FC = () => {
+  const code = new URLSearchParams(window.location.search).get("code") || "";
+  return <Navigate to={"/screens?pair=1" + (code ? "&code=" + encodeURIComponent(code.toUpperCase()) : "")} replace />;
+};
+
 export const Authenticated: React.FC = () => {
   const navigate = useNavigate();
   const context = React.useContext(UserContext);
@@ -57,7 +62,7 @@ export const Authenticated: React.FC = () => {
       <Route element={<Layout />}>
         <Route path="/screens/:id" element={<ScreenPage />} />
         <Route path="/screens" element={<ScreensPage />} />
-        <Route path="/pair" element={<Navigate to="/screens?pair=1" replace />} />
+        <Route path="/pair" element={<PairRedirect />} />
         <Route path="/playlists/:id" element={<PlaylistPage />} />
         <Route path="/playlists" element={<PlaylistsPage />} />
         <Route path="/calendar" element={<CalendarPage />} />

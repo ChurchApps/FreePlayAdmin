@@ -31,6 +31,7 @@ export const ScreensPage: React.FC = () => {
   const [search, setSearch] = React.useState("");
   const [filter, setFilter] = React.useState<Filter>("all");
   const [pairing, setPairing] = React.useState(searchParams.get("pair") === "1");
+  const [pairCode, setPairCode] = React.useState(searchParams.get("code") || "");
   const [editing, setEditing] = React.useState<Screen | null>(null);
   const [view, setView] = React.useState<"table" | "grid">(() => {
     try { return localStorage.getItem(VIEW_KEY) === "grid" ? "grid" : "table"; } catch { return "table"; }
@@ -44,8 +45,10 @@ export const ScreensPage: React.FC = () => {
   React.useEffect(() => {
     if (searchParams.get("pair") === "1") {
       openPair();
+      if (searchParams.get("code")) setPairCode(searchParams.get("code") || "");
       const next = new URLSearchParams(searchParams);
       next.delete("pair");
+      next.delete("code");
       setSearchParams(next, { replace: true });
     }
   }, [searchParams]);
@@ -128,7 +131,7 @@ export const ScreensPage: React.FC = () => {
               </Box>
               {pairing ? (
                 <Box sx={{ borderTop: 1, borderColor: "divider", pt: 3 }}>
-                  <PairScreenForm groups={groups} onDone={() => setPairing(false)} />
+                  <PairScreenForm groups={groups} initialCode={pairCode} onDone={() => setPairing(false)} />
                 </Box>
               ) : (
                 <AddBar sx={{ mt: 0 }}>

@@ -8,13 +8,14 @@ import { ensureGroup, NEW_GROUP, pairScreen, type ScreenMode } from "./pairing";
 
 interface Props {
   groups: ScreenGroup[];
+  initialCode?: string;
   onDone: () => void;
 }
 
 interface Values { code: string; label: string }
 
-export const PairScreenForm: React.FC<Props> = ({ groups, onDone }) => {
-  const { register, handleSubmit, setError, setValue, formState: { errors, isSubmitting } } = useForm<Values>({ defaultValues: { code: "", label: "" } });
+export const PairScreenForm: React.FC<Props> = ({ groups, initialCode, onDone }) => {
+  const { register, handleSubmit, setError, setValue, formState: { errors, isSubmitting } } = useForm<Values>({ defaultValues: { code: (initialCode || "").toUpperCase().slice(0, 4), label: "" } });
   const [groupId, setGroupId] = React.useState(groups[0]?.id || NEW_GROUP);
   const [newGroupName, setNewGroupName] = React.useState("");
   const [mode, setMode] = React.useState<ScreenMode>("scheduled");
