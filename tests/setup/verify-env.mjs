@@ -18,7 +18,7 @@ function refuse(lines) {
     [
       "",
       "========================================",
-      "FreePlayWeb tests refused to run.",
+      "FreePlayAdmin tests refused to run.",
       `  ${body}`,
       "========================================",
       "",

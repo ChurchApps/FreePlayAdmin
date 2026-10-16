@@ -1,4 +1,4 @@
-# FreePlayWeb
+# FreePlayAdmin
 
 Admin site for FreePlay digital signage at https://admin.freeplay.church — screens, playlists, calendar and provider connections. Same ChurchApps login as B1 Admin.
 
