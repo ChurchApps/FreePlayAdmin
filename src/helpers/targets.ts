@@ -28,4 +28,4 @@ export const describeTarget = (entry: ScheduleEntry, ctx: TargetContext) => {
   return ctx.playlists.find((p) => p.id === entry.targetId)?.name || "Playlist";
 };
 
-export const END_BEHAVIOR_SHORT: Record<string, string> = { loop: "loop", holdLast: "play once, hold", fallback: "play once, then default" };
+export const END_BEHAVIOR_SHORT: Record<string, string> = { loop: "loop", holdLast: "teacher paced", fallback: "play once, then default", teacherPaced: "teacher paced" };

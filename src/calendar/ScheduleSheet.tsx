@@ -80,7 +80,7 @@ const initialState = (entry: ScheduleEntry | null, today: Date, playlists: Playl
     date: wallDateKey(start),
     startTime: wallTimeKey(start),
     endTime: wallTimeKey(end),
-    endBehavior: entry.endBehavior || "loop",
+    endBehavior: entry.endBehavior === "holdLast" ? "teacherPaced" : (entry.endBehavior || "loop"),
     starts: wallDateKey(start),
     endsOn: !!rule?.until,
     until: rule?.until || ""
@@ -216,7 +216,7 @@ export const ScheduleSheet: React.FC<Props> = ({ open, entry, initial, screenGro
                 <FormLabel sx={{ fontWeight: 500 }}>If it finishes early</FormLabel>
                 <RadioGroup value={form.endBehavior} onChange={(e) => set("endBehavior", e.target.value as EndBehavior)}>
                   <FormControlLabel value="loop" control={<Radio />} sx={{ alignItems: "flex-start", "& .MuiRadio-root": { pt: 1 } }} label={option("Loop until the end time", "Signage loops, announcements, countdowns")} />
-                  <FormControlLabel value="holdLast" control={<Radio />} sx={{ alignItems: "flex-start", "& .MuiRadio-root": { pt: 1 } }} label={option("Play once, then hold the last slide", "Lessons and services. The teacher can still browse with the remote.")} />
+                  <FormControlLabel value="teacherPaced" control={<Radio />} sx={{ alignItems: "flex-start", "& .MuiRadio-root": { pt: 1 } }} label={option("Teacher paced", "Slides wait for the teacher's remote. The lesson stays up past the end time until the last slide.")} />
                   <FormControlLabel value="fallback" control={<Radio />} sx={{ alignItems: "flex-start", "& .MuiRadio-root": { pt: 1 } }} label={option("Play once, then go back to the default loop")} />
                 </RadioGroup>
               </FormControl>

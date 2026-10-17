@@ -28,7 +28,7 @@ export interface ScreenGroup {
 }
 
 export type ScheduleTargetType = "playlist" | "planType" | "providerFolder";
-export type EndBehavior = "loop" | "holdLast" | "fallback";
+export type EndBehavior = "loop" | "holdLast" | "fallback" | "teacherPaced";
 
 export interface ScheduleEntry {
   id?: string;
