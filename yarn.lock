@@ -223,9 +223,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@churchapps/apphelper@npm:^1.8.6":
-  version: 1.8.6
-  resolution: "@churchapps/apphelper@npm:1.8.6"
+"@churchapps/apphelper@npm:^1.8.11":
+  version: 1.8.11
+  resolution: "@churchapps/apphelper@npm:1.8.11"
   dependencies:
     "@emotion/cache": "npm:^11.14.0"
     "@emotion/react": "npm:^11.14.0"
@@ -287,7 +287,7 @@ __metadata:
       optional: true
     react-google-recaptcha:
       optional: true
-  checksum: 10c0/c2c2f20eb530b6ec2938f5f08cf81f629e5e8666eb8e5f93c089cceb7a700e1cfe62bc0e9cc4b1112d54c380bfe32519c07a28c1b7f68b3538e305ca26521fdc
+  checksum: 10c0/88eb268696fa85ab608329a9479674b9e197bc7ab9852a5929e6119bf87c492b3a77c8057eead5d085d09009dec9ff7711698c1ca5f2551a00868051223fa97a
   languageName: node
   linkType: hard
 
@@ -298,9 +298,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@churchapps/helpers@npm:^2.7.0":
-  version: 2.7.0
-  resolution: "@churchapps/helpers@npm:2.7.0"
+"@churchapps/helpers@npm:^2.9.0":
+  version: 2.9.0
+  resolution: "@churchapps/helpers@npm:2.9.0"
   dependencies:
     dayjs: "npm:^1.11.20"
   peerDependencies:
@@ -308,7 +308,7 @@ __metadata:
   peerDependenciesMeta:
     rrule:
       optional: true
-  checksum: 10c0/12116b1d9e85f00173f9770dc51b023620e020895248c91a3541c5322444e8912787a78334cae77d34050271acd3a9934e12f27f327ca5930adc05dafa4a5b65
+  checksum: 10c0/e2ee7e243d957892b27e3d7765c07a4571b92c07e62c4fbfa8fbeff1f12c68d8d767c3ae4ed4dec5b371dc069b129958359e0c04a058be8476942f086776c20c
   languageName: node
   linkType: hard
 
@@ -2839,9 +2839,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "freeplayadmin@workspace:."
   dependencies:
-    "@churchapps/apphelper": "npm:^1.8.6"
+    "@churchapps/apphelper": "npm:^1.8.11"
     "@churchapps/content-providers": "npm:^0.13.0"
-    "@churchapps/helpers": "npm:^2.7.0"
+    "@churchapps/helpers": "npm:^2.9.0"
     "@eslint/js": "npm:^10.0.1"
     "@mui/icons-material": "npm:^7.3.11"
     "@mui/material": "npm:^7.3.11"
