@@ -35,6 +35,7 @@ export const Player: React.FC<Props> = ({ name, items, endBehavior = "loop", fal
   const hudTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const retried = React.useRef<Set<string>>(new Set());
 
+  const paced = endBehavior === "teacherPaced" || endBehavior === "holdLast";
   const list = onFallback ? fallbackItems : items;
   const listName = onFallback ? fallbackName || name : name;
   const item = list.length ? list[Math.min(index, list.length - 1)] : null;
@@ -61,7 +62,7 @@ export const Player: React.FC<Props> = ({ name, items, endBehavior = "loop", fal
     setHeld(false);
     setElapsed(0);
     if (index + 1 < list.length) { setIndex(index + 1); return; }
-    if (manual || onFallback || endBehavior === "loop") {
+    if (!paced && (manual || onFallback || endBehavior === "loop")) {
       setIndex(0);
       setCycle((c) => c + 1);
       return;
@@ -72,20 +73,21 @@ export const Player: React.FC<Props> = ({ name, items, endBehavior = "loop", fal
       return;
     }
     setHeld(true);
-  }, [index, list.length, onFallback, endBehavior, fallbackItems.length]);
+  }, [index, list.length, onFallback, endBehavior, fallbackItems.length, paced]);
 
   const back = React.useCallback(() => {
     setHeld(false);
     setElapsed(0);
     setCycle((c) => c + 1);
+    if (paced && index <= 0) return;
     setIndex(index > 0 ? index - 1 : Math.max(list.length - 1, 0));
-  }, [index, list.length]);
+  }, [index, list.length, paced]);
 
   React.useEffect(() => {
-    if (!item || paused || held || (isVideo && !timedVideo)) return;
+    if (!item || paused || held || paced || (isVideo && !timedVideo)) return;
     const t = setInterval(() => setElapsed((e) => e + TICK), TICK);
     return () => clearInterval(t);
-  }, [item, paused, held, isVideo, timedVideo]);
+  }, [item, paused, held, paced, isVideo, timedVideo]);
 
   React.useEffect(() => {
     if (!isVideo || timedVideo) {
