@@ -5,8 +5,8 @@ import { Edit as EditIcon, ExpandMore as ExpandIcon, PlayArrow as PlayIcon, Tv a
 import { ConfirmDialog, PageContainer, Pill, RecordHeading, RecordLayout, StatusBadge, TextAction, tableScrollSx } from "../components/ui";
 import { usePageTitle } from "../components/PageTitle";
 import {
-  activeOccurrence, churchTimeZone, describeTarget, expandEntries, formatBytes, formatLongDate, formatWallDay, formatWallTime, invalidate, isOnline, isScheduled, keys, missingCount, nowPlayingTitle, nowWall,
-  parseDeviceInfo, relativeAgo, TARGET_KINDS, useGroupEntries, useMinistries, usePlanTypes, usePlaylists, useScreenGroups, useScreens, type Screen
+  activeOccurrence, describeTarget, expandEntries, formatBytes, formatLongDate, formatWallDay, formatWallTime, invalidate, isOnline, isScheduled, keys, missingCount, nowPlayingTitle, nowWall,
+  parseDeviceInfo, relativeAgo, TARGET_KINDS, useChurchTimeZone, useGroupEntries, useMinistries, usePlanTypes, usePlaylists, useScreenGroups, useScreens, type Screen
 } from "../helpers";
 import { useProviders } from "../providers/useProviders";
 import { ModeBadge } from "./components/ScreenTable";
@@ -49,7 +49,7 @@ export const ScreenPage: React.FC = () => {
   const [confirmUnpair, setConfirmUnpair] = React.useState(false);
   const [toast, setToast] = React.useState("");
 
-  const tz = churchTimeZone();
+  const tz = useChurchTimeZone();
   const ctx = { playlists, planTypes, ministries, providers };
 
   const timeline = React.useMemo(() => {
