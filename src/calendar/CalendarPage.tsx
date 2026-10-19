@@ -6,7 +6,7 @@ import { ApiHelper } from "@churchapps/apphelper";
 import { CountChip, EmptyState, HeaderPrimaryButton, HeaderTextButton, PageContainer, PageHeader, PillTabs, Sheet, Surface, TextAction } from "../components/ui";
 import { usePageTitle } from "../components/PageTitle";
 import {
-  TARGET_COLORS, churchTimeZone, describeTarget, expandEntries, formatWallDate, invalidate, keys, nowWall, useGroupEntries, useMinistries, usePlanTypes, usePlaylists, useScheduleEntries, useScreenGroups,
+  TARGET_COLORS, describeTarget, expandEntries, formatWallDate, invalidate, keys, nowWall, useChurchTimeZone, useGroupEntries, useMinistries, usePlanTypes, usePlaylists, useScheduleEntries, useScreenGroups,
   type ScheduleEntry
 } from "../helpers";
 import { useProviders } from "../providers/useProviders";
@@ -30,7 +30,7 @@ const Legend: React.FC<{ color?: string; hatch?: boolean; label: string }> = ({ 
 
 export const CalendarPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const tz = churchTimeZone();
+  const tz = useChurchTimeZone();
   const groups = useScreenGroups().data || [];
   const allEntries = useScheduleEntries().data || [];
   const playlists = usePlaylists().data || [];
@@ -46,6 +46,8 @@ export const CalendarPage: React.FC = () => {
   const [sheetInitial, setSheetInitial] = React.useState<{ day: Date; minutes: number } | undefined>();
   const [loopOpen, setLoopOpen] = React.useState(false);
   const [loopValue, setLoopValue] = React.useState("");
+
+  React.useEffect(() => { setWeekStart(mondayOf(nowWall(tz))); }, [tz]);
 
   React.useEffect(() => {
     if (!groups.length) return;

@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
-  activeOccurrence, churchTimeZone, describeTarget, expandEntries, formatWallDay, formatWallTime, keys, nowWall, useGroupEntries, useMinistries, usePlanTypes, usePlaylists, useScreenGroups, useScreens,
+  activeOccurrence, describeTarget, expandEntries, formatWallDay, formatWallTime, keys, nowWall, useChurchTimeZone, useGroupEntries, useMinistries, usePlanTypes, usePlaylists, useScreenGroups, useScreens,
   wallDateKey, type Playlist, type PlaylistItem
 } from "../helpers";
 import { useProviders } from "../providers/useProviders";
@@ -39,7 +39,7 @@ const HOUR = 3600000;
 export const PresentScreenPage: React.FC = () => {
   const { deviceId = "" } = useParams();
   const onExit = useExit();
-  const tz = churchTimeZone();
+  const tz = useChurchTimeZone();
   const screensQuery = useScreens();
   const screen = (screensQuery.data || []).find((s) => s.deviceId === deviceId);
   const groupId = screen ? screenGroupId(screen) : "";

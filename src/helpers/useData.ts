@@ -11,6 +11,7 @@ export const keys = {
   groupEntries: (groupId: string) => ["/scheduleEntries/group/" + groupId, "DoingApi"],
   playlist: (id: string) => ["/playlists/" + id, "DoingApi"],
   planTypes: ["/planTypes", "DoingApi"],
+  timeZone: ["/screens/timeZone", "DoingApi"],
   ministries: ["/groups/tag/ministry", "MembershipApi"]
 };
 
@@ -21,6 +22,12 @@ export const useScheduleEntries = () => useQuery<ScheduleEntry[]>({ queryKey: ke
 export const useGroupEntries = (groupId?: string) => useQuery<ScheduleEntry[]>({ queryKey: keys.groupEntries(groupId || ""), enabled: !!groupId, placeholderData: [] });
 export const usePlanTypes = () => useQuery<PlanTypeInterface[]>({ queryKey: keys.planTypes, placeholderData: [] });
 export const useMinistries = () => useQuery<GroupInterface[]>({ queryKey: keys.ministries, placeholderData: [] });
+
+// The zone the TV reads schedule times in; the browser zone is only a stand-in until it loads.
+export const useChurchTimeZone = (): string => {
+  const { data } = useQuery<{ timeZone?: string }>({ queryKey: keys.timeZone, staleTime: Infinity });
+  return data?.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+};
 
 export const invalidate = (...queryKeys: string[][]) => Promise.all(queryKeys.map((queryKey) => queryClient.invalidateQueries({ queryKey })));
 

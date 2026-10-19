@@ -1,5 +1,4 @@
 import { RRule } from "rrule";
-import { UserHelper } from "@churchapps/apphelper";
 import { type ScheduleEntry } from "./interfaces";
 
 export interface Occurrence {
@@ -26,11 +25,6 @@ export const formatWall = (d: Date) => `${d.getUTCFullYear()}-${pad(d.getUTCMont
 export const wallDateKey = (d: Date) => formatWall(d).slice(0, 10);
 
 export const wallTimeKey = (d: Date) => formatWall(d).slice(11, 16);
-
-export const churchTimeZone = (): string => {
-  const church = UserHelper.currentUserChurch?.church as { timeZone?: string } | undefined;
-  return church?.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-};
 
 export const nowWall = (timeZone: string, at = new Date()): Date => {
   try {
