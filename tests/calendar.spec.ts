@@ -122,3 +122,13 @@ test.describe("Calendar", () => {
     await expect(entries).toHaveCount(0);
   });
 });
+
+test.describe("Calendar time zone", () => {
+  test.use({ timezoneId: "America/Los_Angeles" });
+
+  test("uses the church time zone, not the browser's", async ({ page }) => {
+    const header = page.getByText(/What plays when, per screen group/);
+    await expect(header).toContainText("America/Chicago");
+    await expect(header).not.toContainText("America/Los_Angeles");
+  });
+});
