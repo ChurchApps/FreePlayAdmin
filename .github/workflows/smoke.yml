@@ -1,0 +1,57 @@
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+name: Smoke
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Demo smoke
+    # FreePlayAdmin has no demo site, so this builds the app against the demo API and
+    # signs in as the demo user. Smoke never runs against production.
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install Dependencies
+        run: yarn install --immutable
+
+      - name: Install Chromium
+        run: yarn playwright install --with-deps chromium
+
+      - name: Build against the demo API
+        env:
+          REACT_APP_STAGE: demo
+          REACT_APP_API_BASE: https://api.demo.churchapps.org
+          REACT_APP_MESSAGING_API_SOCKET: wss://socket.demo.churchapps.org
+        run: yarn vite build
+
+      - name: Serve the build
+        run: |
+          yarn vite preview --port 4105 --strictPort &
+          for i in $(seq 1 30); do curl -sf http://localhost:4105 >/dev/null && exit 0; sleep 2; done; exit 1
+
+      - name: Smoke suite
+        env:
+          SMOKE_BASE_URL: http://localhost:4105
+          SMOKE_EMAIL: demo@b1.church
+          SMOKE_PASSWORD: password
+          SMOKE_CHURCH: Grace Community Church
+          SMOKE_REQUIRE_AUTH: "1"
+        run: yarn test:smoke

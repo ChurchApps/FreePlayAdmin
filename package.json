@@ -48,6 +48,7 @@
     "typecheck": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json",
     "preview": "vite preview",
     "test": "playwright test",
+    "test:smoke": "playwright test -c playwright.smoke.config.ts",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "test:report": "playwright show-report",
